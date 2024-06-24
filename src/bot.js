@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const { Client } = require("discord.js");
 
 const bot = new Client({
@@ -12,8 +11,37 @@ bot.on("ready", () => {
   console.log(`${bot.user.tag} has logged in`);
 });
 
-bot.on('message', (message) => {
+bot.on('message', async (message) => {
   if (message.author.bot) return;
+
+  const checkProfanity = async (text) => {
+    try {
+      const response = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${text}`);
+      const result = await response.text();
+      return result === 'true';
+    } catch (err) {
+      console.error('Error checking profanity:', err);
+      return false;
+    }
+  };
+  if (await checkProfanity(message.content)) {
+    const member = message.guild.members.cache.get(message.author.id);
+    if (member) {
+      if (member.kickable) {
+        member.send('You have been kicked for using inappropriate language.')
+          .then(() => {
+            member.kick();
+            message.reply('was kicked for using inappropriate language.');
+            setTimeout(()=> message.delete(), 3000);
+          })
+      } else {
+        setTimeout(()=> message.delete(), 3000);
+        message.reply('I do not have permissions to kick you.');
+      }
+    }
+    return;
+  }
+  
   if(message.content === 'hello'){
     message.reply('Hello there!');
   }
