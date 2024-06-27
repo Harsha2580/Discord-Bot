@@ -2,7 +2,7 @@
   "name": "nexusbot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/bot.js",
   "scripts": {
     "start": "node ./src/bot.js"
   },
