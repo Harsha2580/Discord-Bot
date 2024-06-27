@@ -1,9 +1,12 @@
 require("dotenv").config();
 const { Client } = require("discord.js");
-
 const bot = new Client({
   partials: ['MESSAGE','REACTION']
 });
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 const PREFIX = "-";
 
@@ -41,12 +44,19 @@ bot.on('message', async (message) => {
     }
     return;
   }
+
+  const getresponse = async (prompt) => {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+    return text;
+  }
   
   if(message.content === 'hello'){
-    message.reply('Hello there!');
+    return message.reply('Hello there!');
   }
   if(message.content === 'help'){
-    message.channel.send('Commands for Bot :-\n1.Kick : -kick <user ID>\n2.Ban : -ban <user ID>\n3.For roles react on get-roles channel');
+    return message.channel.send('Commands for Bot :-\n1.Kick : -kick <user ID>\n2.Ban : -ban <user ID>\n3.For roles react on get-roles channel');
   }
 
   if (message.content.startsWith(PREFIX)) {
@@ -77,9 +87,20 @@ bot.on('message', async (message) => {
       if (args.length === 0) return message.reply("Please provide an ID");
       message.guild.members
         .ban(args[0])
-        .then((member) =>message.channel.send('User was banned successfully'))
+        .then((member) =>message.channel.send(`${member} was banned successfully`))
         .catch ((err) =>message.channel.send('An error occured. Either I do not have permissions or the user was not found'));
     }
+
+   else if (CMD_NAME === "askai") {
+      let prompt = args.join(' ');
+      prompt += '\nGenerate less than 100 words';
+      message.channel.startTyping();
+      let result = await getresponse(prompt);
+      message.channel.stopTyping();
+      if(result.length > 1000) result = result.substring(0,1000);
+      return message.reply(result);
+    }
+    
   }
 });
 
@@ -125,5 +146,4 @@ bot.on("messageReactionRemove", (reaction, user) => {
     }
 });
   
-
 bot.login(process.env.NexusBot_Token);
