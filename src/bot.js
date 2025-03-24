@@ -9,6 +9,13 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 const PREFIX = "-";
+const MESSAGE_ID = process.env.MESSAGE_ID;
+const ROLE_IDS = {
+  apple: process.env.ROLE_ID_APPLE,
+  carrot: process.env.ROLE_ID_CARROT,
+  chili: process.env.ROLE_ID_CHILI,
+  corn: process.env.ROLE_ID_CORN
+};
 
 bot.on("ready", () => {
   console.log(`${bot.user.tag} has logged in`);
@@ -56,7 +63,7 @@ bot.on('message', async (message) => {
     return message.reply('Hello there!');
   }
   if(message.content === 'help'){
-    return message.channel.send('Commands for Bot :-\n1.Kick : -kick <user ID>\n2.Ban : -ban <user ID>\n3.For roles react on get-roles channel');
+    return message.channel.send('Commands for Bot :-\n1.Kick : -kick <user ID>\n2.Ban : -ban <user ID>\n3.For roles react on get-roles channel\n4.Ask Ai: -askai <prompt>');
   }
 
   if (message.content.startsWith(PREFIX)) {
@@ -107,19 +114,19 @@ bot.on('message', async (message) => {
 bot.on('messageReactionAdd', (reaction, user) => {
     const { name } = reaction.emoji;
     const member = reaction.message.guild.members.cache.get(user.id);
-    if (reaction.message.id === '1202899711531417671') {
+    if (reaction.message.id === MESSAGE_ID) {
       switch (name) {
         case '🍏':
-          member.roles.add('1202889203977822258');
+          member.roles.add(ROLE_IDS.apple);
           break;
         case '🥕':
-          member.roles.add('1202889266393522186');
+          member.roles.add(ROLE_IDS.carrot);
           break;
         case '🌶️':
-          member.roles.add('1202889321477316630');
+          member.roles.add(ROLE_IDS.chili);
           break;
         case '🌽':
-          member.roles.add('1202889366469607434');
+          member.roles.add(ROLE_IDS.corn);
           break;
       }
     }
@@ -128,19 +135,19 @@ bot.on('messageReactionAdd', (reaction, user) => {
 bot.on("messageReactionRemove", (reaction, user) => {
     const { name } = reaction.emoji;
     const member = reaction.message.guild.members.cache.get(user.id);
-    if (reaction.message.id === "1202899711531417671") {
+    if (reaction.message.id === MESSAGE_ID) {
         switch (name) {
         case '🍏':
-            member.roles.remove("1202889203977822258");
+            member.roles.remove(ROLE_IDS.apple);
             break;
         case '🥕':
-            member.roles.remove("1202889266393522186");
+            member.roles.remove(ROLE_IDS.carrot);
             break;
         case '🌶️':
-            member.roles.remove("1202889321477316630");
+            member.roles.remove(ROLE_IDS.chili);
             break;
         case '🌽':
-            member.roles.remove("1202889366469607434");
+            member.roles.remove(ROLE_IDS.corn);
             break;
         }
     }
